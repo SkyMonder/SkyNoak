@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>SkyNoak — соцсеть будущего</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0a0a0a;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+    #app {
+      width: 100%;
+      max-width: 650px;
+      padding: 0 12px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    /* header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid #222;
+      margin-bottom: 12px;
+      position: sticky;
+      top: 0;
+      background: rgba(10,10,10,0.9);
+      backdrop-filter: blur(8px);
+      z-index: 10;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #1d9bf0, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .user-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn {
+      background: #1d9bf0;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 0.95rem;
+    }
+    .btn:hover {
+      background: #1a8cd8;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #333;
+      color: #ccc;
+    }
+    .btn-outline:hover {
+      background: #1a1a1a;
+      border-color: #555;
+    }
+    .btn-small {
+      padding: 6px 14px;
+      font-size: 0.85rem;
+    }
+    .profile-pic-small {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+    }
+    /* feed */
+    .post-composer {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .composer-textarea {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      color: #e0e0e0;
+      padding: 12px;
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 80px;
+      margin-bottom: 10px;
+      font-family: inherit;
+    }
+    .composer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .post {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      transition: border 0.2s;
+    }
+    .post:hover {
+      border-color: #444;
+    }
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .post-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      font-size: 1.1rem;
+    }
+    .post-user {
+      font-weight: 700;
+      color: #f0f0f0;
+    }
+    .post-time {
+      color: #777;
+      font-size: 0.8rem;
+    }
+    .post-content {
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+    .post-actions {
+      display: flex;
+      gap: 18px;
+      color: #888;
+      font-size: 0.95rem;
+    }
+    .action-btn {
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .action-btn.liked {
+      color: #e74c3c;
+    }
+    .action-btn:hover {
+      color: #ccc;
+    }
+    .delete-btn {
+      color: #c44;
+      margin-left: auto;
+    }
+    .delete-btn:hover {
+      color: #f55;
+    }
+    /* auth modal */
+    .modal {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-content {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 16px;
+      padding: 24px;
+      width: 90%;
+      max-width: 380px;
+    }
+    .modal-content h2 {
+      margin-bottom: 16px;
+      color: #fff;
+    }
+    .input-field {
+      width: 100%;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 10px;
+      color: #fff;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      font-size: 1rem;
+    }
+    .error {
+      color: #f87171;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+    .flex-row {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .hidden {
+      display: none !important;
+    }
+    /* settings / profile */
+    .settings-box {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 14px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .settings-box label {
+      display: block;
+      margin-bottom: 6px;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+    hr {
+      border-color: #222;
+      margin: 16px 0;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1d9bf0;
+      color: white;
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-weight: 500;
+      z-index: 200;
+      animation: fadeInOut 2s forwards;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; bottom: 10px; }
+      10% { opacity: 1; bottom: 20px; }
+      80% { opacity: 1; }
+      100% { opacity: 0; bottom: 30px; }
+    }
+    a { color: #1d9bf0; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">SkyNoak</div>
+    <div class="user-actions" id="headerActions"></div>
+  </div>
+
+  <!-- Main content area -->
+  <div id="mainContent" style="flex:1;"></div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast hidden"></div>
+</div>
+
+<script>
+  // ==================== STORAGE & STATE ====================
+  const STORAGE_KEYS = {
+    USERS: 'skynoak_users',
+    POSTS: 'skynoak_posts',
+    CURRENT_USER: 'skynoak_currentUser',
+    LIKES: 'skynoak_likes',       // массив ID постов, лайкнутых текущим (или словарь?)
+  };
+
+  // Инициализация: создаём админа, если нет
+  function initDB() {
+    if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+      const adminUser = {
+        id: 'admin_' + Date.now(),
+        username: 'SkyMonder',
+        password: '',                // пароль пока пустой, можно задать при входе
+        isAdmin: true,
+        avatarLetter: 'S',
+        createdAt: new Date().toISOString()
+      };
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([adminUser]));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.POSTS)) {
+      // Добавим демо-пост от админа
+      const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
+      const admin = users.find(u => u.username === 'SkyMonder');
+      const demoPost = {
+        id: 'post_' + Date.now(),
+        userId: admin.id,
+        username: admin.username,
+        avatarLetter: admin.avatarLetter,
+        content: '🚀 Добро пожаловать в SkyNoak! Это новый уровень общения. Я — основатель.',
+        timestamp: Date.now(),
+        likes: [],
+      };
+      localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify([demoPost]));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.LIKES)) {
+      localStorage.setItem(STORAGE_KEYS.LIKES, JSON.stringify({})); // { postId: [userId,...] }
+    }
+  }
+  initDB();
+
+  function getUsers() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+  }
+  function saveUsers(users) {
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+  }
+  function getPosts() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.POSTS) || '[]');
+  }
+  function savePosts(posts) {
+    localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+  }
+  function getLikes() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.LIKES) || '{}');
+  }
+  function saveLikes(likes) {
+    localStorage.setItem(STORAGE_KEYS.LIKES, JSON.stringify(likes));
+  }
+
+  let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_USER) || 'null');
+
+  // ==================== RENDER ====================
+  const mainContent = document.getElementById('mainContent');
+  const headerActions = document.getElementById('headerActions');
+  const toastEl = document.getElementById('toast');
+
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.remove('hidden');
+    setTimeout(() => toastEl.classList.add('hidden'), 2000);
+  }
+
+  function renderHeader() {
+    if (currentUser) {
+      headerActions.innerHTML = `
+        <span style="color:#aaa; margin-right:4px;">@${currentUser.username}</span>
+        <div class="profile-pic-small" id="profileBtn">${currentUser.avatarLetter}</div>
+        <button class="btn btn-outline btn-small" id="logoutBtn">Выйти</button>
+      `;
+      document.getElementById('profileBtn').addEventListener('click', () => renderProfile());
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+    } else {
+      headerActions.innerHTML = `
+        <button class="btn" id="loginBtn">Войти</button>
+      `;
+      document.getElementById('loginBtn').addEventListener('click', showLoginModal);
+    }
+  }
+
+  function renderFeed() {
+    const posts = getPosts().sort((a,b) => b.timestamp - a.timestamp);
+    let html = '';
+    if (currentUser) {
+      html += `
+        <div class="post-composer">
+          <textarea class="composer-textarea" id="newPostText" placeholder="Что нового?"></textarea>
+          <div class="composer-actions">
+            <span></span>
+            <button class="btn" id="publishBtn">Опубликовать</button>
+          </div>
+        </div>
+      `;
+    }
+    if (posts.length === 0) {
+      html += '<p style="color:#666; text-align:center; margin-top:40px;">Пока нет постов. Станьте первым!</p>';
+    } else {
+      posts.forEach(post => {
+        const date = new Date(post.timestamp);
+        const timeStr = date.toLocaleString('ru-RU', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+        const likes = getLikes()[post.id] || [];
+        const likedByMe = currentUser ? likes.includes(currentUser.id) : false;
+        html += `
+          <div class="post" data-post-id="${post.id}">
+            <div class="post-header">
+              <div class="post-avatar">${post.avatarLetter}</div>
+              <div>
+                <span class="post-user">@${post.username}</span>
+                <span class="post-time">· ${timeStr}</span>
+              </div>
+              ${currentUser && currentUser.id === post.userId ? `<button class="action-btn delete-btn deletePostBtn" data-id="${post.id}">🗑️</button>` : ''}
+            </div>
+            <div class="post-content">${escapeHTML(post.content)}</div>
+            <div class="post-actions">
+              <button class="action-btn like-btn ${likedByMe ? 'liked' : ''}" data-id="${post.id}">
+                ❤️ <span class="like-count">${likes.length}</span>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    }
+    mainContent.innerHTML = html;
+
+    // привязка событий
+    if (currentUser) {
+      document.getElementById('publishBtn')?.addEventListener('click', publishPost);
+      document.getElementById('newPostText')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          publishPost();
+        }
+      });
+    }
+    document.querySelectorAll('.deletePostBtn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const postId = e.currentTarget.getAttribute('data-id');
+        deletePost(postId);
+      });
+    });
+    document.querySelectorAll('.like-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const postId = e.currentTarget.getAttribute('data-id');
+        toggleLike(postId);
+      });
+    });
+  }
+
+  function escapeHTML(str) {
+    return String(str).replace(/[&<>"]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      if (m === '"') return '&quot;';
+      return m;
+    });
+  }
+
+  function publishPost() {
+    const textarea = document.getElementById('newPostText');
+    const content = textarea.value.trim();
+    if (!content) return showToast('Напишите что-нибудь');
+    const posts = getPosts();
+    const newPost = {
+      id: 'post_' + Date.now(),
+      userId: currentUser.id,
+      username: currentUser.username,
+      avatarLetter: currentUser.avatarLetter,
+      content: content,
+      timestamp: Date.now(),
+      likes: [],
+    };
+    posts.push(newPost);
+    savePosts(posts);
+    // инициализируем лайки
+    const likes = getLikes();
+    if (!likes[newPost.id]) likes[newPost.id] = [];
+    saveLikes(likes);
+    textarea.value = '';
+    renderFeed();
+    showToast('Пост опубликован!');
+  }
+
+  function deletePost(postId) {
+    if (!currentUser) return;
+    let posts = getPosts();
+    const post = posts.find(p => p.id === postId);
+    if (!post || post.userId !== currentUser.id) return;
+    posts = posts.filter(p => p.id !== postId);
+    savePosts(posts);
+    // удалить лайки
+    const likes = getLikes();
+    delete likes[postId];
+    saveLikes(likes);
+    renderFeed();
+    showToast('Пост удалён');
+  }
+
+  function toggleLike(postId) {
+    if (!currentUser) {
+      showToast('Войдите, чтобы лайкать');
+      return;
+    }
+    const likes = getLikes();
+    if (!likes[postId]) likes[postId] = [];
+    const idx = likes[postId].indexOf(currentUser.id);
+    if (idx === -1) {
+      likes[postId].push(currentUser.id);
+    } else {
+      likes[postId].splice(idx, 1);
+    }
+    saveLikes(likes);
+    renderFeed();
+  }
+
+  // ==================== AUTH ====================
+  function showLoginModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <h2>Вход в SkyNoak</h2>
+        <div id="loginError" class="error hidden"></div>
+        <input class="input-field" id="loginUsername" placeholder="Имя пользователя" value="SkyMonder">
+        <input class="input-field" id="loginPassword" type="password" placeholder="Пароль">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span style="font-size:0.8rem; color:#777;">Админ: SkyMonder</span>
+        </div>
+        <div class="flex-row">
+          <button class="btn btn-outline" id="closeLoginModal">Отмена</button>
+          <button class="btn" id="loginSubmit">Войти</button>
+        </div>
+        <hr>
+        <p style="font-size:0.8rem; color:#aaa; margin-top:8px;">Нет аккаунта? <a href="#" id="showRegister">Создать</a></p>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('closeLoginModal').addEventListener('click', () => modal.remove());
+    document.getElementById('showRegister').addEventListener('click', (e) => {
+      e.preventDefault();
+      modal.remove();
+      showRegisterModal();
+    });
+    document.getElementById('loginSubmit').addEventListener('click', () => {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const users = getUsers();
+      const user = users.find(u => u.username === username);
+      const errorEl = document.getElementById('loginError');
+      if (!user) {
+        errorEl.textContent = 'Пользователь не найден';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      // Если пароль админа пуст, разрешаем вход и предлагаем задать пароль
+      if (user.password === '' && password === '') {
+        // особый случай: вход с пустым паролем, сразу предлагаем установить
+        loginUser(user);
+        modal.remove();
+        showToast('Добро пожаловать! Задайте пароль в профиле.');
+        renderProfile(); // открыть профиль для смены пароля
+        return;
+      }
+      if (user.password !== password) {
+        errorEl.textContent = 'Неверный пароль';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      loginUser(user);
+      modal.remove();
+      showToast('Вход выполнен!');
+    });
+    // Закрытие по клику вне модалки
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+  }
+
+  function showRegisterModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <h2>Регистрация</h2>
+        <div id="regError" class="error hidden"></div>
+        <input class="input-field" id="regUsername" placeholder="Придумайте имя">
+        <input class="input-field" id="regPassword" type="password" placeholder="Пароль">
+        <div class="flex-row">
+          <button class="btn btn-outline" id="closeRegModal">Отмена</button>
+          <button class="btn" id="regSubmit">Создать</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('closeRegModal').addEventListener('click', () => modal.remove());
+    document.getElementById('regSubmit').addEventListener('click', () => {
+      const username = document.getElementById('regUsername').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const errorEl = document.getElementById('regError');
+      if (!username || username.length < 2) {
+        errorEl.textContent = 'Имя должно быть от 2 символов';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      if (!password || password.length < 3) {
+        errorEl.textContent = 'Пароль минимум 3 символа';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      const users = getUsers();
+      if (users.find(u => u.username === username)) {
+        errorEl.textContent = 'Имя занято';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      const newUser = {
+        id: 'user_' + Date.now(),
+        username: username,
+        password: password,
+        isAdmin: false,
+        avatarLetter: username.charAt(0).toUpperCase(),
+        createdAt: new Date().toISOString()
+      };
+      users.push(newUser);
+      saveUsers(users);
+      loginUser(newUser);
+      modal.remove();
+      showToast('Аккаунт создан!');
+    });
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+  }
+
+  function loginUser(user) {
+    currentUser = user;
+    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+    renderHeader();
+    renderFeed();
+  }
+
+  function logout() {
+    currentUser = null;
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    renderHeader();
+    renderFeed();
+    showToast('Вы вышли');
+  }
+
+  // ==================== PROFILE & SETTINGS ====================
+  function renderProfile() {
+    if (!currentUser) {
+      showToast('Сначала войдите');
+      return;
+    }
+    const user = currentUser;
+    let html = `
+      <div class="settings-box">
+        <h2 style="margin-bottom:16px;">Профиль @${user.username}</h2>
+        <p style="color:#aaa; margin-bottom:12px;">Администратор: ${user.isAdmin ? 'Да' : 'Нет'}</p>
+        <label>Сменить пароль</label>
+        <input class="input-field" id="newPassword" type="password" placeholder="Новый пароль">
+        <div style="margin-top:8px;">
+          <button class="btn" id="savePasswordBtn">Сохранить пароль</button>
+          <button class="btn btn-outline btn-small" id="backToFeedBtn" style="margin-left:8px;">← Назад</button>
+        </div>
+        <div id="profileMsg" style="margin-top:8px; font-size:0.9rem; color:#4ade80;" class="hidden"></div>
+      </div>
+    `;
+    mainContent.innerHTML = html;
+    document.getElementById('savePasswordBtn').addEventListener('click', () => {
+      const newPass = document.getElementById('newPassword').value;
+      if (!newPass || newPass.length < 3) {
+        document.getElementById('profileMsg').textContent = 'Пароль минимум 3 символа';
+        document.getElementById('profileMsg').classList.remove('hidden');
+        return;
+      }
+      const users = getUsers();
+      const idx = users.findIndex(u => u.id === currentUser.id);
+      if (idx !== -1) {
+        users[idx].password = newPass;
+        saveUsers(users);
+        currentUser = users[idx];
+        localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(currentUser));
+        document.getElementById('profileMsg').textContent = 'Пароль обновлён!';
+        document.getElementById('profileMsg').classList.remove('hidden');
+        showToast('Пароль сохранён');
+      }
+    });
+    document.getElementById('backToFeedBtn').addEventListener('click', renderFeed);
+  }
+
+  // ==================== INITIAL RENDER ====================
+  renderHeader();
+  renderFeed();
+
+  // Глобальный обработчик для смены на главную через логотип
+  document.querySelector('.logo').addEventListener('click', renderFeed);
+</script>
+</body>
+</html>
